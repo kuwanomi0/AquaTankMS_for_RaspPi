@@ -4,7 +4,11 @@
 import RPi.GPIO as GPIO
 import time
 
-from config import *
+# TRIGとECHOのGPIO番号   
+TRIG_PIN = 11
+ECHO_PIN = 13
+# 音速
+SONIC_SPEED = 34000
 
 
 # HIGH or LOWの時計測
@@ -22,10 +26,7 @@ def pulseIn(PIN, start=1, end=0):
 
 # 距離計測
 def get_distance():
-    # TRIGとECHOのGPIO番号   
-    TRIG_PIN = HC_SR04_TRIG_PIN
-    ECHO_PIN = HC_SR04_ECHO_PIN
-    v=HC_SR04_ECHO_SONIC_SPEED
+    v=SONIC_SPEED
     # ピン番号をGPIOで指定
     GPIO.setmode(GPIO.BOARD)
     # TRIG_PINを出力, ECHO_PINを入力

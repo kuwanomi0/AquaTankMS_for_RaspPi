@@ -3,8 +3,10 @@
 # coding: UTF-8
 import subprocess
 
-from config import *
+DS18B20_SENSOR_ID = '28-031397799b9b'
+SENSOR_W1_SLAVE = '/sys/bus/w1/devices/' + DS18B20_SENSOR_ID + '/w1_slave'
 
+# 温度取得
 def get_temperature():
     res = subprocess.check_output(['cat', SENSOR_W1_SLAVE]).decode('utf-8')
     temp_val = res.split('=')
