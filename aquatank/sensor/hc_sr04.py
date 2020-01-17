@@ -1,9 +1,10 @@
-#!/usr/bin/env python
-# coding:
+#!/usr/bin/env python3
+# hc_sr04.py : HC-SR04用距離取得プログラム
+# coding: UTF-8
 import RPi.GPIO as GPIO
 import time
 
-from sensor_config import *
+from config import *
 
 
 # HIGH or LOWの時計測
