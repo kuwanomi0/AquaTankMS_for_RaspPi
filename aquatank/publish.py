@@ -1,4 +1,8 @@
+#!/usr/bin/env python3
+# publish.py : パブリッシュ処理用プログラム
+# coding: UTF-8
 import datetime
+import time
 import paho.mqtt.client as mqtt
 
 import sensor
@@ -19,29 +23,56 @@ def on_publish(client, userdata, mid):
     print("publish: {0}".format(mid))
 
 #-- Main ----
-print("START: " + str(__file__))
+# print("START: " + str(__file__))
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_disconnect = on_disconnect
 client.on_publish = on_publish
-print('connected to: ', broker_url)
-client.connect(broker_url, 1883, 60)
-client.loop_start()
+def main():
+    print('connected to: ', broker_url)
+    interval_sec = 5
+    client.connect(broker_url, 1883, 60)
+    client.loop_start()
 
-try:
-    while True:
-        # 水温取得
-        waterTemp, disValue, roomHum, roomTemp = sensor.get_value()
+    waterTemp = 0.0
+    disValue = 0.0
+    roomTemp = 0.0
+    roomHum = 0.0
 
-        date_now = datetime.datetime.now(datetime.timezone.utc) 
-        resultStr = '{}: W:{}, D:{}, T:{}, H:{}'.format(date_now.isoformat(),
-            round(waterTemp, 1),
-            round(disValue, 1),
-            round(roomTemp, 1),
-            round(roomHum, 1))
-        client.publish(sensor_topic, str(resultStr))
+    try:
+        while True:
+            start_timing = datetime.datetime.now()
+            # print(start_timing.strftime('%H:%M:%S.%f'))
 
-except(KeyboardInterrupt, SystemExit):
-    print('SIGINTを検知')
+            roomHumT = roomHum
+            roomTempT = roomTemp
+            # 水温取得
+            waterTemp, disValue, roomHum, roomTemp = sensor.get_value()
 
-print("END.")
+            if str(roomHum) == '0.0' :
+                roomHum = roomHumT
+            if str(roomTemp) == '0.0' :
+                roomTemp = roomTempT
+
+            date_now = datetime.datetime.now(datetime.timezone.utc) 
+            resultStr = '{}: W:{}, D:{}, T:{}, H:{}'.format(date_now.isoformat(),
+                round(waterTemp, 1),
+                round(disValue, 1),
+                round(roomTemp, 1),
+                round(roomHum, 1))
+            print(resultStr)
+            client.publish(sensor_topic, str(resultStr))
+
+            end_timing = datetime.datetime.now()
+            time_delta_sec = (end_timing - start_timing).total_seconds()
+            sleep_sec = interval_sec - time_delta_sec - 0.00397
+
+            time.sleep(max(sleep_sec, 0))
+
+    except(KeyboardInterrupt, SystemExit):
+        print('SIGINTを検知')
+
+    print("END.")
+
+if __name__ == "__main__":
+    main()
